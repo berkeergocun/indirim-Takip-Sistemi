@@ -1,9 +1,30 @@
 import { connectDB } from '../../../utils/db';
 import { PriceCheckerService } from '../../../services/price-checker.service';
+import { Product } from '../../../models/Product';
+import { verifyToken } from '../../../utils/jwt';
 
 export default defineEventHandler(async (event) => {
   try {
     await connectDB();
+    
+    // Verify JWT token
+    const authHeader = getHeader(event, 'authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid token',
+      });
+    }
+    const userId = decoded.userId;
     
     const id = getRouterParam(event, 'id');
     
@@ -11,6 +32,15 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Product ID is required',
+      });
+    }
+    
+    // Verify product belongs to user
+    const product = await Product.findOne({ _id: id, userId });
+    if (!product) {
+      throw createError({
+        statusCode: 404,
+        message: 'Product not found',
       });
     }
 

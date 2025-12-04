@@ -2,10 +2,30 @@ import { connectDB } from '../../utils/db';
 import { Product } from '../../models/Product';
 import { PriceHistory } from '../../models/PriceHistory';
 import { ScraperService } from '../../services/scraper.service';
+import { verifyToken } from '../../utils/jwt';
 
 export default defineEventHandler(async (event) => {
   try {
     await connectDB();
+    
+    // Verify JWT token
+    const authHeader = getHeader(event, 'authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid token',
+      });
+    }
+    const userId = decoded.userId;
     
     const body = await readBody(event);
     
@@ -16,12 +36,12 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Check if product already exists
-    const existingProduct = await Product.findOne({ url: body.url });
+    // Check if product already exists for this user
+    const existingProduct = await Product.findOne({ url: body.url, userId });
     if (existingProduct) {
       return {
         success: true,
-        message: 'Product already tracked',
+        message: 'Bu ürünü zaten takip ediyorsunuz',
         data: existingProduct,
       };
     }
@@ -38,8 +58,7 @@ export default defineEventHandler(async (event) => {
       originalPrice: scrapedData.price,
       imageUrl: scrapedData.imageUrl,
       platform: scrapedData.platform,
-      userEmail: body.userEmail,
-      userPhone: body.userPhone,
+      userId,
       notificationPreference: body.notificationPreference || 'email',
       priceDropThreshold: body.priceDropThreshold || parseFloat(process.env.PRICE_DROP_THRESHOLD || '5'),
       isActive: true,

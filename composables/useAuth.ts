@@ -94,6 +94,13 @@ export const useAuth = () => {
     }
   };
 
+  const updateUserData = (newUserData: any) => {
+    user.value = newUserData;
+    if (process.client) {
+      localStorage.setItem('user', JSON.stringify(newUserData));
+    }
+  };
+
   // Initialize from localStorage on client
   if (process.client) {
     const savedToken = localStorage.getItem('token');
@@ -114,5 +121,6 @@ export const useAuth = () => {
     logout,
     fetchUser,
     updateProfile,
+    updateUserData,
   };
 };

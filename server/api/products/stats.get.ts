@@ -1,6 +1,5 @@
 import { connectDB } from '../../utils/db';
 import { Product } from '../../models/Product';
-import { PriceHistory } from '../../models/PriceHistory';
 import { verifyToken } from '../../utils/jwt';
 
 export default defineEventHandler(async (event) => {
@@ -25,38 +24,28 @@ export default defineEventHandler(async (event) => {
       });
     }
     const userId = decoded.userId;
-    
-    const id = getRouterParam(event, 'id');
-    
-    if (!id) {
-      throw createError({
-        statusCode: 400,
-        message: 'Product ID is required',
-      });
-    }
 
-    // Delete product only if it belongs to the user
-    const product = await Product.findOneAndDelete({ _id: id, userId });
-    
-    if (!product) {
-      throw createError({
-        statusCode: 404,
-        message: 'Product not found',
-      });
-    }
+    // Get user's product statistics
+    const totalProducts = await Product.countDocuments({ userId });
+    const activeProducts = await Product.countDocuments({ userId, isActive: true });
 
-    // Delete associated price history
-    await PriceHistory.deleteMany({ productId: id });
+    // For notifications, we'll count products that have had a price drop
+    // This is a simplified version - in a real app, you'd track notifications separately
+    const products = await Product.find({ userId });
+    const notifications = products.filter(
+      (p) => p.currentPrice < p.originalPrice
+    ).length;
 
     return {
-      success: true,
-      message: 'Product deleted successfully',
+      totalProducts,
+      activeProducts,
+      notifications,
     };
   } catch (error: any) {
-    console.error('Error deleting product:', error);
+    console.error('Error fetching stats:', error);
     throw createError({
       statusCode: error.statusCode || 500,
-      message: error.message || 'Failed to delete product',
+      message: error.message || 'Failed to fetch stats',
     });
   }
 });

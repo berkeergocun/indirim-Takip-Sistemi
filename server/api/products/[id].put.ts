@@ -1,9 +1,29 @@
 import { connectDB } from '../../utils/db';
 import { Product } from '../../models/Product';
+import { verifyToken } from '../../utils/jwt';
 
 export default defineEventHandler(async (event) => {
   try {
     await connectDB();
+    
+    // Verify JWT token
+    const authHeader = getHeader(event, 'authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid token',
+      });
+    }
+    const userId = decoded.userId;
     
     const id = getRouterParam(event, 'id');
     const body = await readBody(event);
@@ -15,12 +35,10 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const product = await Product.findByIdAndUpdate(
-      id,
+    const product = await Product.findOneAndUpdate(
+      { _id: id, userId },
       {
         $set: {
-          userEmail: body.userEmail,
-          userPhone: body.userPhone,
           notificationPreference: body.notificationPreference,
           priceDropThreshold: body.priceDropThreshold,
           isActive: body.isActive,
