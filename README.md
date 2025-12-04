@@ -123,7 +123,7 @@ E-ticaret sitelerindeki ürün fiyatlarını takip eden, indirim olduğunda emai
 - **Backend:** Nuxt Server API (Nitro)
 - **Database:** MongoDB, Mongoose
 - **Web Scraping:** Axios, Cheerio
-- **Scheduler:** node-cron
+- **Scheduler:** node-schedule
 - **Email:** Nodemailer
 - **SMS:** Twilio (opsiyonel)
 - **Container:** Docker, Docker Compose
