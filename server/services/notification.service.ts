@@ -14,10 +14,11 @@ export class NotificationService {
 
   static async sendEmailNotification(
     product: IProduct,
+    user: any,
     oldPrice: number,
     newPrice: number
   ): Promise<void> {
-    if (!product.userEmail) {
+    if (!user || !user.email) {
       console.log('No email address provided for product:', product._id);
       return;
     }
@@ -26,7 +27,7 @@ export class NotificationService {
 
     const mailOptions = {
       from: process.env.EMAIL_FROM || 'Price Tracker <noreply@pricetracker.com>',
-      to: product.userEmail,
+      to: user.email,
       subject: `🎉 Fiyat Düştü: ${product.title}`,
       html: `
         <!DOCTYPE html>
@@ -96,7 +97,7 @@ Platform: ${product.platform.toUpperCase()}
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`✅ Email sent to ${product.userEmail} for product ${product._id}`);
+      console.log(`✅ Email sent to ${user.email} for product ${product._id}`);
     } catch (error) {
       console.error('Email sending error:', error);
       throw error;
@@ -105,10 +106,11 @@ Platform: ${product.platform.toUpperCase()}
 
   static async sendSMSNotification(
     product: IProduct,
+    user: any,
     oldPrice: number,
     newPrice: number
   ): Promise<void> {
-    if (!product.userPhone) {
+    if (!user || !user.phone) {
       console.log('No phone number provided for product:', product._id);
       return;
     }
@@ -131,11 +133,11 @@ Platform: ${product.platform.toUpperCase()}
       await client.messages.create({
         body: message,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: product.userPhone,
+        to: user.phone,
       });
       */
       
-      console.log(`📱 SMS notification (simulated) sent to ${product.userPhone}:`, message);
+      console.log(`📱 SMS notification (simulated) sent to ${user.phone}:`, message);
     } catch (error) {
       console.error('SMS sending error:', error);
       throw error;
@@ -144,17 +146,18 @@ Platform: ${product.platform.toUpperCase()}
 
   static async notify(
     product: IProduct,
+    user: any,
     oldPrice: number,
     newPrice: number
   ): Promise<void> {
     const promises: Promise<void>[] = [];
 
     if (product.notificationPreference === 'email' || product.notificationPreference === 'both') {
-      promises.push(this.sendEmailNotification(product, oldPrice, newPrice));
+      promises.push(this.sendEmailNotification(product, user, oldPrice, newPrice));
     }
 
     if (product.notificationPreference === 'sms' || product.notificationPreference === 'both') {
-      promises.push(this.sendSMSNotification(product, oldPrice, newPrice));
+      promises.push(this.sendSMSNotification(product, user, oldPrice, newPrice));
     }
 
     await Promise.allSettled(promises);

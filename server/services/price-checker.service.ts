@@ -1,5 +1,6 @@
 import { Product } from '../models/Product';
 import { PriceHistory } from '../models/PriceHistory';
+import { User } from '../models/User';
 import { ScraperService } from './scraper.service';
 import { NotificationService } from './notification.service';
 
@@ -43,7 +44,12 @@ export class PriceCheckerService {
       
       if (priceDropPercentage >= product.priceDropThreshold) {
         console.log(`🎉 Price drop detected: ${oldPrice} → ${newPrice} (${priceDropPercentage.toFixed(2)}%)`);
-        await NotificationService.notify(product, oldPrice, newPrice);
+        
+        // Get user info for notifications
+        const user = await User.findById(product.userId);
+        if (user) {
+          await NotificationService.notify(product, user, oldPrice, newPrice);
+        }
       } else {
         console.log(`No significant price drop: ${oldPrice} → ${newPrice} (${priceDropPercentage.toFixed(2)}%)`);
       }

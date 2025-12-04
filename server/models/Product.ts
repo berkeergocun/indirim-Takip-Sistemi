@@ -1,14 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProduct extends Document {
+  userId: mongoose.Types.ObjectId;
   url: string;
   title: string;
   currentPrice: number;
   originalPrice: number;
   imageUrl?: string;
   platform: string;
-  userEmail?: string;
-  userPhone?: string;
   notificationPreference: 'email' | 'sms' | 'both';
   priceDropThreshold: number;
   isActive: boolean;
@@ -19,10 +18,14 @@ export interface IProduct extends Document {
 
 const ProductSchema = new Schema<IProduct>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     url: {
       type: String,
       required: true,
-      unique: true,
     },
     title: {
       type: String,
@@ -43,12 +46,6 @@ const ProductSchema = new Schema<IProduct>(
       type: String,
       required: true,
       enum: ['trendyol', 'hepsiburada', 'n11', 'amazon', 'other'],
-    },
-    userEmail: {
-      type: String,
-    },
-    userPhone: {
-      type: String,
     },
     notificationPreference: {
       type: String,
