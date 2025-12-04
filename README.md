@@ -132,11 +132,10 @@ E-ticaret sitelerindeki ürün fiyatlarını takip eden, indirim olduğunda emai
 
 ```
 3--Price-Tracker/
-├── app/
-│   ├── pages/
-│   │   ├── index.vue              # Ana sayfa
-│   │   └── products/[id].vue      # Ürün detay sayfası
-│   └── app.vue                    # Root component
+├── pages/
+│   ├── index.vue                  # Ana sayfa
+│   └── products/[id].vue          # Ürün detay sayfası
+├── app.vue                        # Root component
 ├── server/
 │   ├── api/
 │   │   ├── products/              # Product API endpoints
