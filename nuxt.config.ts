@@ -1,9 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   
   modules: ['@nuxtjs/tailwindcss'],
+  
+  // Reduce console logs
+  logLevel: 'silent',
   
   app: {
     head: {
@@ -25,5 +28,14 @@ export default defineNuxtConfig({
     emailFrom: process.env.EMAIL_FROM,
     cronSchedule: process.env.CRON_SCHEDULE,
     priceDropThreshold: process.env.PRICE_DROP_THRESHOLD,
-  }
+  },
+
+  // Minimize build logs
+  build: {
+    transpile: [],
+  },
+
+  vite: {
+    logLevel: 'error',
+  },
 })

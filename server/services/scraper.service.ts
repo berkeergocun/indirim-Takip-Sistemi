@@ -18,12 +18,42 @@ export class ScraperService {
   }
 
   private static cleanPrice(priceText: string): number {
-    // Remove currency symbols and convert to number
-    const cleaned = priceText
-      .replace(/[^\d,.-]/g, '')
-      .replace(',', '.')
-      .trim();
-    return parseFloat(cleaned) || 0;
+    if (!priceText) return 0;
+    
+    // Remove all non-numeric characters except comma and dot
+    let cleaned = priceText.replace(/[^\d,.-]/g, '').trim();
+    
+    // Turkish format: 1.300,50 (dot as thousand separator, comma as decimal)
+    // English format: 1,300.50 (comma as thousand separator, dot as decimal)
+    
+    // Count dots and commas to determine format
+    const dotCount = (cleaned.match(/\./g) || []).length;
+    const commaCount = (cleaned.match(/,/g) || []).length;
+    
+    // If there are multiple dots and one comma, it's likely Turkish format (1.300,50)
+    // If there are multiple commas and one dot, it's likely English format (1,300.50)
+    if (dotCount > 1 || (dotCount >= 1 && commaCount === 1 && cleaned.lastIndexOf('.') < cleaned.lastIndexOf(','))) {
+      // Turkish format: remove dots (thousand separator) and replace comma with dot
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else if (commaCount > 1) {
+      // English format: remove commas (thousand separator)
+      cleaned = cleaned.replace(/,/g, '');
+    } else if (commaCount === 1 && dotCount === 0) {
+      // Single comma, no dots - likely decimal separator
+      cleaned = cleaned.replace(',', '.');
+    } else if (dotCount === 1 && commaCount === 1) {
+      // Both present - check which comes last
+      if (cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
+        // Turkish: 1.300,50
+        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+      } else {
+        // English: 1,300.50
+        cleaned = cleaned.replace(/,/g, '');
+      }
+    }
+    
+    const price = parseFloat(cleaned) || 0;
+    return price;
   }
 
   static async scrapeProduct(url: string): Promise<ScrapedData> {
