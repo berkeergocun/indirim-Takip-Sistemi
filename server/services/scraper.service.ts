@@ -13,7 +13,12 @@ export class ScraperService {
     if (url.includes('trendyol.com')) return 'trendyol';
     if (url.includes('hepsiburada.com')) return 'hepsiburada';
     if (url.includes('n11.com')) return 'n11';
-    if (url.includes('amazon.com')) return 'amazon';
+    if (url.includes('amazon.com') || url.includes('amazon.tr')) return 'amazon';
+    if (url.includes('gittigidiyor.com')) return 'gittigidiyor';
+    if (url.includes('ciceksepeti.com')) return 'ciceksepeti';
+    if (url.includes('morhipo.com')) return 'morhipo';
+    if (url.includes('defacto.com.tr')) return 'defacto';
+    if (url.includes('lcwaikiki.com')) return 'lcwaikiki';
     return 'other';
   }
 
@@ -77,69 +82,181 @@ export class ScraperService {
 
       switch (platform) {
         case 'trendyol':
-          title = $('.pr-new-br h1').text().trim() || 
-                  $('h1.product-name').text().trim() ||
-                  $('h1[class*="title"]').first().text().trim();
+          // Trendyol 2024+ selectors
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('.pr-new-br h1').text().trim() || 
+                  $('h1').first().text().trim();
           
-          price = this.cleanPrice(
+          // Try multiple price selectors for Trendyol
+          const trendyolPriceText = 
+            $('span[class*="prc-slg"]').first().text() ||
+            $('.prc-slg').first().text() ||
+            $('span[class*="prc-dsc"]').first().text() ||
             $('.prc-dsc').first().text() ||
-            $('[class*="price"]').first().text()
-          );
+            $('div[class*="price"] span').first().text() ||
+            $('[data-price]').attr('data-price') ||
+            '';
           
-          imageUrl = $('.product-image img').attr('src') || 
-                     $('img[class*="product"]').first().attr('src') || '';
+          console.log('Trendyol raw price text:', trendyolPriceText);
+          price = this.cleanPrice(trendyolPriceText);
+          
+          imageUrl = $('img[class*="product-image"]').first().attr('src') ||
+                     $('.gallery-modal img').first().attr('src') ||
+                     $('img[alt*="product"]').first().attr('src') || 
+                     $('img').first().attr('src') || '';
           break;
 
         case 'hepsiburada':
-          title = $('#product-name').text().trim() || 
-                  $('h1[id*="product"]').text().trim() ||
+          // Hepsiburada updated selectors
+          title = $('h1[id="product-name"]').text().trim() ||
+                  $('h1.product-name').text().trim() ||
                   $('h1').first().text().trim();
           
-          price = this.cleanPrice(
-            $('[data-bind*="currentPrice"]').text() ||
-            $('.price-value').text()
-          );
+          const hbPriceText = 
+            $('span[data-bind*="currentPrice"]').text() ||
+            $('.product-price span').first().text() ||
+            $('[itemprop="price"]').attr('content') ||
+            '';
           
-          imageUrl = $('.product-image img').attr('src') || 
-                     $('img[class*="image"]').first().attr('src') || '';
+          console.log('Hepsiburada raw price text:', hbPriceText);
+          price = this.cleanPrice(hbPriceText);
+          
+          imageUrl = $('#ProductImage').attr('src') ||
+                     $('img[class*="product"]').first().attr('src') || '';
           break;
 
         case 'n11':
-          title = $('.proDetail h1').text().trim() || 
-                  $('h1.title').text().trim() ||
+          // N11 updated selectors
+          title = $('h1[class*="productName"]').text().trim() ||
+                  $('.proDetail h1').text().trim() || 
                   $('h1').first().text().trim();
           
-          price = this.cleanPrice(
+          const n11PriceText = 
+            $('.newPrice .priceValue').text() ||
             $('.newPrice ins').text() ||
-            $('[class*="price"]').first().text()
-          );
+            $('[class*="price"]').first().text() ||
+            '';
           
-          imageUrl = $('.imgZoomArea img').attr('src') || 
+          console.log('N11 raw price text:', n11PriceText);
+          price = this.cleanPrice(n11PriceText);
+          
+          imageUrl = $('#imgZoom').attr('src') ||
+                     $('.imgZoomArea img').attr('src') || 
                      $('img[class*="product"]').first().attr('src') || '';
           break;
 
         case 'amazon':
+          // Amazon updated selectors
           title = $('#productTitle').text().trim() ||
-                  $('h1[id*="title"]').text().trim();
+                  $('h1[id*="title"]').text().trim() ||
+                  $('h1.product-title').text().trim();
           
-          price = this.cleanPrice(
+          const amazonPriceText = 
+            $('.a-price[data-a-color="price"] .a-offscreen').first().text() ||
             $('.a-price .a-offscreen').first().text() ||
             $('#priceblock_ourprice').text() ||
-            $('.a-price-whole').first().text()
-          );
+            $('#priceblock_dealprice').text() ||
+            $('.a-price-whole').first().text() ||
+            $('[data-a-color="price"]').first().text() ||
+            '';
+          
+          console.log('Amazon raw price text:', amazonPriceText);
+          price = this.cleanPrice(amazonPriceText);
           
           imageUrl = $('#landingImage').attr('src') || 
                      $('img[data-a-image-name*="MAIN"]').first().attr('src') || '';
           break;
 
+        case 'gittigidiyor':
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('h1').first().text().trim();
+          
+          const ggPriceText = 
+            $('[class*="price-text"]').first().text() ||
+            $('[id*="sp-price"]').text() ||
+            '';
+          
+          console.log('GittiGidiyor raw price text:', ggPriceText);
+          price = this.cleanPrice(ggPriceText);
+          
+          imageUrl = $('img[class*="product"]').first().attr('src') || '';
+          break;
+
+        case 'ciceksepeti':
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('h1').first().text().trim();
+          
+          const csPriceText = 
+            $('[class*="price"]').first().text() ||
+            $('[data-price]').attr('data-price') ||
+            '';
+          
+          console.log('Çiçeksepeti raw price text:', csPriceText);
+          price = this.cleanPrice(csPriceText);
+          
+          imageUrl = $('img[class*="product"]').first().attr('src') || '';
+          break;
+
+        case 'morhipo':
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('h1').first().text().trim();
+          
+          const mhPriceText = 
+            $('[class*="price-new"]').first().text() ||
+            $('[class*="price"]').first().text() ||
+            '';
+          
+          console.log('Morhipo raw price text:', mhPriceText);
+          price = this.cleanPrice(mhPriceText);
+          
+          imageUrl = $('img[class*="product"]').first().attr('src') || '';
+          break;
+
+        case 'defacto':
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('h1').first().text().trim();
+          
+          const dfPriceText = 
+            $('[class*="price"]').first().text() ||
+            $('[data-price]').attr('data-price') ||
+            '';
+          
+          console.log('Defacto raw price text:', dfPriceText);
+          price = this.cleanPrice(dfPriceText);
+          
+          imageUrl = $('img[class*="product"]').first().attr('src') || '';
+          break;
+
+        case 'lcwaikiki':
+          title = $('h1[class*="product"]').first().text().trim() ||
+                  $('h1').first().text().trim();
+          
+          const lcwPriceText = 
+            $('[class*="price"]').first().text() ||
+            $('[data-price]').attr('data-price') ||
+            '';
+          
+          console.log('LC Waikiki raw price text:', lcwPriceText);
+          price = this.cleanPrice(lcwPriceText);
+          
+          imageUrl = $('img[class*="product"]').first().attr('src') || '';
+          break;
+
         default:
           // Generic scraping
           title = $('h1').first().text().trim();
-          price = this.cleanPrice(
+          
+          const genericPriceText = 
             $('[class*="price"]').first().text() ||
-            $('[id*="price"]').first().text()
-          );
-          imageUrl = $('img').first().attr('src') || '';
+            $('[id*="price"]').first().text() ||
+            $('[itemprop="price"]').attr('content') ||
+            '';
+          
+          console.log('Generic raw price text:', genericPriceText);
+          price = this.cleanPrice(genericPriceText);
+          
+          imageUrl = $('img[alt*="product"]').first().attr('src') ||
+                     $('img').first().attr('src') || '';
       }
 
       if (!title || price <= 0) {

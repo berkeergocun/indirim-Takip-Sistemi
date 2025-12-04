@@ -20,7 +20,7 @@ A modern, full-stack price tracking application that monitors product prices acr
 
 ## 🌟 Features
 
-- 🔍 **Multi-Platform Support** - Track prices from Trendyol, Hepsiburada, N11, and Amazon
+- 🔍 **Multi-Platform Support** - Track prices from Trendyol, Hepsiburada, N11, Amazon, GittiGidiyor, Çiçeksepeti, Morhipo, Defacto, LC Waikiki and more
 - 📧 **Smart Notifications** - Get email/SMS alerts when prices drop below your threshold
 - 🌓 **Dark/Light Mode** - Beautiful UI with seamless theme switching
 - 👤 **User Authentication** - Secure JWT-based authentication system
@@ -280,7 +280,7 @@ For support, please open an issue on GitHub or contact the maintainers.
 
 ## 🌟 Özellikler
 
-- 🔍 **Çoklu Platform Desteği** - Trendyol, Hepsiburada, N11 ve Amazon'dan fiyat takibi
+- 🔍 **Çoklu Platform Desteği** - Trendyol, Hepsiburada, N11, Amazon, GittiGidiyor, Çiçeksepeti, Morhipo, Defacto, LC Waikiki ve daha fazlası
 - 📧 **Akıllı Bildirimler** - Fiyat düştüğünde e-posta/SMS bildirimi alın
 - 🌓 **Karanlık/Aydınlık Mod** - Kusursuz tema geçişli güzel arayüz
 - 👤 **Kullanıcı Kimlik Doğrulama** - Güvenli JWT tabanlı kimlik doğrulama sistemi

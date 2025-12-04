@@ -45,7 +45,18 @@ const ProductSchema = new Schema<IProduct>(
     platform: {
       type: String,
       required: true,
-      enum: ['trendyol', 'hepsiburada', 'n11', 'amazon', 'other'],
+      enum: [
+        'trendyol', 
+        'hepsiburada', 
+        'n11', 
+        'amazon', 
+        'gittigidiyor',
+        'ciceksepeti',
+        'morhipo',
+        'defacto',
+        'lcwaikiki',
+        'other'
+      ],
     },
     notificationPreference: {
       type: String,
