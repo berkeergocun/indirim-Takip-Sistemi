@@ -1,5 +1,5 @@
-import { connectDB } from '~/server/utils/db';
-import { Product } from '~/server/models/Product';
+import { connectDB } from '../../utils/db';
+import { Product } from '../../models/Product';
 
 export default defineEventHandler(async (event) => {
   try {

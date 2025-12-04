@@ -1,7 +1,7 @@
-import { connectDB } from '~/server/utils/db';
-import { Product } from '~/server/models/Product';
-import { PriceHistory } from '~/server/models/PriceHistory';
-import { ScraperService } from '~/server/services/scraper.service';
+import { connectDB } from '../../utils/db';
+import { Product } from '../../models/Product';
+import { PriceHistory } from '../../models/PriceHistory';
+import { ScraperService } from '../../services/scraper.service';
 
 export default defineEventHandler(async (event) => {
   try {

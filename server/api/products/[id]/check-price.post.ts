@@ -1,5 +1,5 @@
-import { connectDB } from '~/server/utils/db';
-import { PriceCheckerService } from '~/server/services/price-checker.service';
+import { connectDB } from '../../../utils/db';
+import { PriceCheckerService } from '../../../services/price-checker.service';
 
 export default defineEventHandler(async (event) => {
   try {

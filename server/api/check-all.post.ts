@@ -1,5 +1,5 @@
-import { connectDB } from '~/server/utils/db';
-import { SchedulerService } from '~/server/services/scheduler.service';
+import { connectDB } from '../utils/db';
+import { SchedulerService } from '../services/scheduler.service';
 
 export default defineEventHandler(async (event) => {
   try {
